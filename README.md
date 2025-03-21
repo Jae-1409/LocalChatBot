@@ -28,3 +28,27 @@ export WEBUI_PORT=3000
 ```bash
 bash launch.sh
 ```
+
+## Advanced
+
+### 사용중인 GPU의 compute capability가 80 이상이면 👉 Flash Attention, V1 engine, bf16 사용
+
+아래처럼 VLLM_USE_V1, VLLM_ATTENTION_BACKEND bfloat16 옵션 추가하여 사용
+
+```yaml
+services:
+  vllm:
+    ...
+    entrypoint: python3 -m vllm.entrypoints.openai.api_server
+    ...
+    --dtype bfloat16 # 👈
+    ...
+    environment:
+      - VLLM_USE_V1 1  # 👈
+      - VLLM_ATTENTION_BACKEND: "FLASH_ATTN"  # 👈
+```
+
+### GPU 2개 이상 쓸 수 있다 👉 Tensor Parallel 사용 (방법은 따로 연락)
+
+
+
