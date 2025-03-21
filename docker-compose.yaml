@@ -1,22 +1,30 @@
 services:
+  temp:
+    build:
+      context: dockerfiles
+      dockerfile: vllm.Dockerfile
+    entrypoint: bash
+    volumes:
+      - ./models:/models
+
   vllm:
     image: vllm/vllm-openai:v0.7.3
     entrypoint: python3 -m vllm.entrypoints.openai.api_server
-      --model /models/Llama8B-Instruct
+      --model /models/Qwen2.5-0.5B-Instruct
       --served-model-name ChatBot
-      --gpu-memory-utilization 0.95
+      --gpu-memory-utilization 0.80
       --disable-log-requests
       --enable-prefix-caching
+      --dtype half
     volumes: 
       - ./models:/models
     environment:
       VLLM_USE_V1: 1
       VLLM_ATTENTION_BACKEND: "FLASH_ATTN"
-      VLLM_FLASH_ATTN_VERSION: 3
     ports:
       - "5000:8000"
     extra_hosts:
-      - "host.docker.interal:host-gateway"
+      - "host.docker.internal:host-gateway"
     network_mode: bridge
     deploy:
       resources:
@@ -24,4 +32,19 @@ services:
           devices:
             - driver: nvidia
               device_ids: ['0']
-              capabilities: [gpu]    
+              capabilities: [gpu]  
+  webui:
+    image: ghcr.io/open-webui/open-webui:main
+    ports:
+      - "3000:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    network_mode: bridge
+    environment:
+      ENABLE_OLLAMA_API: false
+      ENABLE_RAG_WEB_SEARCH: true
+      RAG_WEB_SEARCH_ENGINE: "duckduckgo"
+      DEFAULT_MODELS: "ChatBot"
+      DEFAULT_USER_ROLE: "user"
+      OPENAI_API_BASE_URL: "http://192.168.123.101:5000"
+
