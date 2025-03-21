@@ -19,13 +19,14 @@ services:
     volumes: 
       - ./models:/models
     environment:
-      VLLM_USE_V1: 1
+      VLLM_USE_V1: 0
       VLLM_ATTENTION_BACKEND: "FLASH_ATTN"
     ports:
       - "5000:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    network_mode: bridge
+    networks:
+      - llm-network
     deploy:
       resources:
         reservations:
@@ -39,12 +40,18 @@ services:
       - "3000:8080"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    network_mode: bridge
+    volumes:
+      - "open-webui:/app/backend/data"
     environment:
       ENABLE_OLLAMA_API: false
       ENABLE_RAG_WEB_SEARCH: true
       RAG_WEB_SEARCH_ENGINE: "duckduckgo"
       DEFAULT_MODELS: "ChatBot"
       DEFAULT_USER_ROLE: "user"
-      OPENAI_API_BASE_URL: "http://192.168.123.101:5000"
+      OPENAI_API_BASE_URL: "http://vllm:8000/v1"
+    networks:
+      - llm-network
 
+networks:
+  llm-network:
+    driver: bridge
