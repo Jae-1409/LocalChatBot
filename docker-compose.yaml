@@ -1,0 +1,27 @@
+services:
+  vllm:
+    image: vllm/vllm-openai:v0.7.3
+    entrypoint: python3 -m vllm.entrypoints.openai.api_server
+      --model /models/Llama8B-Instruct
+      --served-model-name ChatBot
+      --gpu-memory-utilization 0.95
+      --disable-log-requests
+      --enable-prefix-caching
+    volumes: 
+      - ./models:/models
+    environment:
+      VLLM_USE_V1: 1
+      VLLM_ATTENTION_BACKEND: "FLASH_ATTN"
+      VLLM_FLASH_ATTN_VERSION: 3
+    ports:
+      - "5000:8000"
+    extra_hosts:
+      - "host.docker.interal:host-gateway"
+    network_mode: bridge
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]    
