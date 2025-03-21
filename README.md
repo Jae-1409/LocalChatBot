@@ -6,7 +6,7 @@
 
 ``` bash
 # hugginface transformers, pytorch required
-cd ./models && python3 down_model.py --model-name deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+cd ./models && python3 down_models.py --model-name deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
 ```
 
 ### 2. 환경설정
